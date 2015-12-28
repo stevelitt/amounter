@@ -5,6 +5,9 @@ import re
 import os
 import subprocess
 
+def mount_base():
+    return('/media/')
+
 class Relevant_lines():
     def __init__(self, proc):
         self.proc = proc
@@ -75,7 +78,7 @@ def inotify_test():
 
     def dev2mountpoint(dev):
         junk = re.sub('.*/', '', dev)
-        mountpoint = '/media/' + junk
+        mountpoint = mount_base() + junk
         return mountpoint
 
     def init_id_dict():
@@ -86,26 +89,49 @@ def inotify_test():
                 id_dict[f] = devname
         return id_dict
 
+
+    def run_commands(commands):
+        for i in range(len(commands)):
+            print(commands[i])
+        print('\n\n')
         
     def handle_create(idstring, id_dict):
         dev = id2dev(idstring)
         if dev != 'nosymlink':
-            print('Creating {} from {}'.format(dev, idstring))
-            id_dict[idstring] = dev
-            commands = []
-            commands[0] = 'mount {}'
+            if re.search('\d$', dev):     # Partition devs end with a digit
+                mountpoint = dev2mountpoint(dev)
+                print('About to perform: os.makedirs({}, exist_ok=True)'.format(mountpoint))
+                os.makedirs(mountpoint, exist_ok=True)
+                print('About to perform: mount {} {}'.format(dev, mountpoint))
+                subprocess.call(['mount', dev, mountpoint], stdout = subprocess.DEVNULL)
+
+                ### SAVE idstring TO DEV SYMLINK
+                ### BECAUSE BY DELETE TIME IT'S ALREADY GONE
+                id_dict[idstring] = dev
+                
 
     def handle_delete(idstring, id_dict):
+        print('dia1')
         if idstring in id_dict:
+            print('dia2')
             dev = id_dict[idstring]
-            print('Deleting {} from {}'.format(dev, idstring))
             del id_dict[idstring]
+            if re.search('\d$', dev):     # Partition devs end with a digit
+                mountpoint = dev2mountpoint(dev)
+                print('dia3 mountpoint={} and dev={}'.format(mountpoint, dev))
+                if re.match('/media/', mountpoint) and re.search('/dev/sd[b-z]\d\d*', dev):
+                    print('dia4')
+                    print('About to perform: umount {}'.format(dev))
+                    subprocess.call(['umount', dev], stdout = subprocess.DEVNULL)
+                    print('About to perform: rmdir {}'.format(mountpoint))
+                    subprocess.call(['rmdir', mountpoint], stdout = subprocess.DEVNULL)
+
 
 
     id_dict = init_id_dict()
-    for k in id_dict.keys():
-        print('{}->{}: {}'.format(k, id_dict[k], dev2mountpoint(id_dict[k])))
-    exit(1)
+    #for k in id_dict.keys():
+        #print('{}->{}: {}'.format(k, id_dict[k], dev2mountpoint(id_dict[k])))
+    #exit(1)
 
     proc = subprocess.Popen(['/usr/bin/inotifywait', '-m', '-r', '/dev/disk/by-id'], stdout=subprocess.PIPE, bufsize=1)
     rl = Rl_inotify(proc)
