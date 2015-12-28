@@ -100,10 +100,16 @@ def inotify_test():
         if dev != 'nosymlink':
             if re.search('\d$', dev):     # Partition devs end with a digit
                 mountpoint = dev2mountpoint(dev)
-                print('About to perform: os.makedirs({}, exist_ok=True)'.format(mountpoint))
+                devmountpoint = re.sub('\d*$', '*', mountpoint)
                 os.makedirs(mountpoint, exist_ok=True)
-                print('About to perform: mount {} {}'.format(dev, mountpoint))
                 subprocess.call(['mount', dev, mountpoint], stdout = subprocess.DEVNULL)
+                tmp = 'Your inserted thumb drive mounted {} to {}.'
+                tmp = tmp.format(dev, mountpoint)
+                print(tmp)
+                tmp = 'BE SURE to "umount {}" before removing this thumb drive!!!'
+                tmp = tmp.format(devmountpoint)
+                print(tmp)
+                print()
 
                 ### SAVE idstring TO DEV SYMLINK
                 ### BECAUSE BY DELETE TIME IT'S ALREADY GONE
@@ -111,20 +117,15 @@ def inotify_test():
                 
 
     def handle_delete(idstring, id_dict):
-        print('dia1')
         if idstring in id_dict:
-            print('dia2')
             dev = id_dict[idstring]
             del id_dict[idstring]
             if re.search('\d$', dev):     # Partition devs end with a digit
                 mountpoint = dev2mountpoint(dev)
-                print('dia3 mountpoint={} and dev={}'.format(mountpoint, dev))
                 if re.match('/media/', mountpoint) and re.search('/dev/sd[b-z]\d\d*', dev):
-                    print('dia4')
-                    print('About to perform: umount {}'.format(dev))
                     subprocess.call(['umount', dev], stdout = subprocess.DEVNULL)
-                    print('About to perform: rmdir {}'.format(mountpoint))
                     subprocess.call(['rmdir', mountpoint], stdout = subprocess.DEVNULL)
+                    print('form: umount {}'.format(dev))
 
 
 
