@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import sys
 import os
 import string
@@ -6,10 +6,11 @@ import subprocess
 
 path_arr = os.path.realpath(sys.argv[0]).split('/')
 path_arr.pop()
-path_arr = '/'.join(path_arr)
+path_str = '/'.join(path_arr)
 
-print(path_arr)
+print(path_str)
+print('Running in directory {}'.format(path_str))
 
-os.chdir(path_arr)
+os.chdir(path_str)
 
 subprocess.call(['./amounter.py'])

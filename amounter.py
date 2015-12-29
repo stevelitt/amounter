@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python
 import sys
 import types
 import re
@@ -101,15 +101,21 @@ def inotify_test():
             if re.search('\d$', dev):     # Partition devs end with a digit
                 mountpoint = dev2mountpoint(dev)
                 devmountpoint = re.sub('\d*$', '*', mountpoint)
-                os.makedirs(mountpoint, exist_ok=True)
-                subprocess.call(['mount', dev, mountpoint], stdout = subprocess.DEVNULL)
+                
+                ## Python2 compatible version of os.makedirs(mountpoint, exist_ok=True)
+                try: 
+                    os.makedirs(mountpoint)
+                except OSError:
+                    if not os.path.isdir(mountpoint):
+                        raise
+                subprocess.call(['mount', dev, mountpoint], stdout = open('/dev/null', 'w'))  ## subprocess.DEVNULL IS Py3 only
                 tmp = 'Your inserted thumb drive mounted {} to {}.'
                 tmp = tmp.format(dev, mountpoint)
                 print(tmp)
                 tmp = 'BE SURE to "umount {}" before removing this thumb drive!!!'
                 tmp = tmp.format(devmountpoint)
                 print(tmp)
-                print()
+                print('\n')
 
                 ### SAVE idstring TO DEV SYMLINK
                 ### BECAUSE BY DELETE TIME IT'S ALREADY GONE
@@ -123,9 +129,10 @@ def inotify_test():
             if re.search('\d$', dev):     # Partition devs end with a digit
                 mountpoint = dev2mountpoint(dev)
                 if re.match('/media/', mountpoint) and re.search('/dev/sd[b-z]\d\d*', dev):
-                    subprocess.call(['umount', dev], stdout = subprocess.DEVNULL)
-                    subprocess.call(['rmdir', mountpoint], stdout = subprocess.DEVNULL)
+                    subprocess.call(['umount', dev], stdout = open('/dev/null', 'w'))  ## subprocess.DEVNULL IS Py3 only
+                    subprocess.call(['rmdir', mountpoint], stdout = open('/dev/null', 'w'))
                     print('form: umount {}'.format(dev))
+        print('\n')
 
 
 
@@ -142,7 +149,7 @@ def inotify_test():
     (lineno, txt) = rl.nextt()
     while lineno != -99:
         print(txt)
-        tmp_arr = txt.split(maxsplit=2)
+        tmp_arr = txt.split(None, 2) # constructed to work with Py2 or Py3
         if len(tmp_arr) > 2:
             (dev, fcn, otherstuff) = tmp_arr
         elif len(tmp_arr) > 1:
