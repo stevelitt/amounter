@@ -12,7 +12,7 @@ import re
 import os
 import subprocess
 import time
-import shunk
+#import shunk
 
 print('')
 print('If this command threw no error messages,')
