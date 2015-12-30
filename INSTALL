@@ -1,0 +1,45 @@
+INSTALLING THE AMOUNTER THUMB DRIVE AUTOMOUNTER
+Version 0.2.0
+12/28/2015
+By Steve Litt
+
+1) Make sure Python is installed. Almost every Linux
+   computer in the past 5 years has Python.The Amounter
+   software works with Python 2.7 and Python 3.4, and
+   probably every recent Python.
+
+2) They're probably already installed with your Python
+   package, but make sure the following Python libraries
+   are installed:
+     * string
+     * sys
+     * types
+     * re
+     * os
+     * subprocess
+     * time
+   You can quickly determine that they're all installed by
+   running the libtest.py program that comes with
+   Amounter.
+
+3) Make sure the inotify command line interface programs
+   are installed. The package will probably be called
+   something like "inotify-tools".
+
+4) Go to the directory *above* which you want to install
+   Amounter, and type the following command:
+    tar xczf amounter-0.2.0.tgz
+
+5) As root, run the amctl.py program, and watch its output
+   as you insert thumb drives. Be sure to unmount before
+   physically yanking a drive, or you can lose data.
+
+NOTES:
+
+* Some distros might allow you to run this program as a
+  certain group. If so, do that: It's more secure.
+
+* Do not run any of this software from an init system or a
+  process supervisor or from /etc/rc.local. You can get it
+  to work like that, but you won't see important warnings
+  telling you to unmount before removing a thumb drive.

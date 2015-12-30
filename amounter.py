@@ -1,9 +1,43 @@
 #!/usr/bin/python
+
+#########################################################
+# Copyright (c) 2015 by Steve Litt
+#  
+# Permission is hereby granted, free of charge, to any
+# person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the
+# Software without restriction, including without limitation
+# the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the
+# Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice
+# shall be included in all copies or substantial portions of
+# the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY
+# KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
+# CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+# IN THE SOFTWARE.
+#########################################################
+
+# Amounter thumb drive automount program, V0.2.0
+# Version 0.2.0
+# See README, INSTALL, AND BUGS files.
+
+
 import sys
 import types
 import re
 import os
 import subprocess
+import time
 
 def mount_base():
     return('/media/')
@@ -36,7 +70,7 @@ class Relevant_lines():
             return self.this_line_number, self.this_line_text
 
 
-def inotify_test():
+def main():
 
     class Rl_inotify(Relevant_lines):
         def is_relevant(self):
@@ -145,6 +179,13 @@ def inotify_test():
     rl = Rl_inotify(proc)
 
 
+    time.sleep(0.4)
+    print('')
+    print('Amounter Thumb Drive Automount Program now Running.')
+    print('You can now insert thumb drives and they will automount in /media.')
+    print('If earlier inserted thumb drives are not mounted,')
+    print('You can remove and reinsert them.')
+    print('')
 
     (lineno, txt) = rl.nextt()
     while lineno != -99:
@@ -168,9 +209,6 @@ def inotify_test():
         if fcn == 'DELETE' and otherstuff != 'not given':
             handle_delete(otherstuff, id_dict)
         
-        #print('dev={}'.format(dev))
-        #print('fcn={}'.format(fcn))
-        #print('otherstuff={}'.format(otherstuff))
-        #print('')
         (lineno, txt) = rl.nextt()
-inotify_test()
+
+main()
